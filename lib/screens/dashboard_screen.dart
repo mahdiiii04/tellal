@@ -13,9 +13,14 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Café Tellal - Accueil', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // On remplace le simple texte par votre magnifique logo
+        title: Image.asset(
+          'assets/tellal_logo.png',
+          height: 50, // Vous pourrez ajuster cette taille selon vos goûts
+          fit: BoxFit.contain,
+        ),
         centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
