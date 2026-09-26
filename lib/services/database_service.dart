@@ -26,16 +26,31 @@ class DatabaseService {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 2,
+      onCreate: _createDB,
+      onUpgrade: _upgradeDB,
+    );
   }
 
   Future _createDB(Database db, int version) async {
     await db.execute('CREATE TABLE produits (id TEXT PRIMARY KEY, nom TEXT, poids REAL, imagePath TEXT, prixDeBase REAL, quantiteEnStock INTEGER)');
-    await db.execute('CREATE TABLE clients (id TEXT PRIMARY KEY, nom TEXT, localisation TEXT, telephone TEXT)');
+    await db.execute('CREATE TABLE clients (id TEXT PRIMARY KEY, nom TEXT, localisation TEXT, telephone TEXT, detteInitiale REAL DEFAULT 0)');
     await db.execute('CREATE TABLE paiements (id TEXT PRIMARY KEY, montant REAL, datePaiement TEXT)');
     await db.execute('CREATE TABLE versements (id TEXT PRIMARY KEY, clientId TEXT, montant REAL, dateVersement TEXT)');
     await db.execute('CREATE TABLE entrees (id TEXT PRIMARY KEY, produitId TEXT, quantite INTEGER, prixAchat REAL, dateAjout TEXT)');
     await db.execute('CREATE TABLE ventes (id TEXT PRIMARY KEY, clientId TEXT, dateVente TEXT, lignes TEXT)');
+  }
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      final columns = await db.rawQuery("PRAGMA table_info(clients)");
+      final hasDetteInitiale = columns.any((column) => column['name'] == 'detteInitiale');
+      if (!hasDetteInitiale) {
+        await db.execute('ALTER TABLE clients ADD COLUMN detteInitiale REAL DEFAULT 0');
+      }
+    }
   }
 
   // --- SAUVEGARDES (INSERTS) ---

@@ -34,14 +34,42 @@ class _VentesScreenState extends State<VentesScreen> {
                     leading: const CircleAvatar(backgroundColor: Colors.green, child: Icon(Icons.shopping_cart, color: Colors.white)),
                     title: Text(vente.client.nom, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text('${vente.dateVente.day}/${vente.dateVente.month}/${vente.dateVente.year} - ${vente.lignes.length} article(s)'),
-                    trailing: Text('${vente.totalVente} DA', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 16)),
+                    trailing: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${vente.totalVente.toStringAsFixed(2)} DA',
+                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Marge: ${vente.margeVente.toStringAsFixed(2)} DA',
+                          style: const TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
                     children: [
                       // Liste des produits achetés
                       ...vente.lignes.map((ligne) {
                         return ListTile(
                           title: Text(ligne.produit.nom),
                           subtitle: Text('Prix de base: ${ligne.prixDeBase} | Marge: +${ligne.marge} DA'),
-                          trailing: Text('${ligne.quantite}x = ${ligne.totalLigne} DA'),
+                          trailing: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '${ligne.quantite}x = ${ligne.totalLigne.toStringAsFixed(2)} DA',
+                                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Marge: ${(ligne.marge * ligne.quantite).toStringAsFixed(2)} DA',
+                                style: const TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
                         );
                       }),
                       // Bouton d'impression

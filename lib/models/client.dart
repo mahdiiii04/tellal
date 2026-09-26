@@ -5,12 +5,14 @@ class Client {
   String nom;
   String localisation;
   String telephone;
+  double detteInitiale;
 
   Client({
     required this.id,
     required this.nom,
     required this.localisation,
     required this.telephone,
+    this.detteInitiale = 0.0,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,6 +21,7 @@ class Client {
       'nom': nom,
       'localisation': localisation,
       'telephone': telephone,
+      'detteInitiale': detteInitiale,
     };
   }
 
@@ -28,6 +31,7 @@ class Client {
       nom: map['nom'],
       localisation: map['localisation'] ?? '',
       telephone: map['telephone'] ?? '',
+      detteInitiale: (map['detteInitiale'] ?? 0).toDouble(),
     );
   }
 }

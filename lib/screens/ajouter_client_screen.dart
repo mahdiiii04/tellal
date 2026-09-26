@@ -14,6 +14,7 @@ class _AjouterClientScreenState extends State<AjouterClientScreen> {
   String nom = '';
   String localisation = '';
   String telephone = '';
+  double detteInitiale = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +42,13 @@ class _AjouterClientScreenState extends State<AjouterClientScreen> {
                 keyboardType: TextInputType.phone,
                 onSaved: (val) => telephone = val ?? '',
               ),
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Dette initiale (DA)', border: OutlineInputBorder()),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                initialValue: '0',
+                onSaved: (val) => detteInitiale = double.tryParse(val ?? '0') ?? 0.0,
+              ),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
@@ -51,6 +59,7 @@ class _AjouterClientScreenState extends State<AjouterClientScreen> {
                       nom: nom,
                       localisation: localisation,
                       telephone: telephone,
+                      detteInitiale: detteInitiale,
                     );
                     Navigator.pop(context, client);
                   }

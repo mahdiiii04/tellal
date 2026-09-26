@@ -14,6 +14,7 @@ class BaseDeDonnees {
   static List<Client> clients = [];
   static List<Vente> historiqueVentes = [];
   static List<Versement> historiqueVersements = [];
+  static double? detteTotaleManuelle;
 
   // 1. CHANGER LE CHARGEMENT AU DÉMARRAGE
   static Future<void> initialiser() async {
@@ -65,21 +66,40 @@ class BaseDeDonnees {
   }
 
   // 3. CALCULS EXISTANTS
+  static void definirDetteTotale(double valeur) {
+    detteTotaleManuelle = valeur;
+  }
+
+  static void reinitialiserDetteTotale() {
+    detteTotaleManuelle = null;
+  }
+
   static double get detteTotale {
     double totalAchats = historiqueEntrees.fold(0, (somme, entree) => somme + entree.coutTotal);
     double totalPaye = historiquePaiements.fold(0, (somme, paiement) => somme + paiement.montant);
-    return totalAchats - totalPaye;
+    final detteCalculee = totalAchats - totalPaye;
+    return detteTotaleManuelle ?? detteCalculee;
   }
 
   static double detteClient(String clientId) {
+    final client = clients.firstWhere(
+      (c) => c.id == clientId,
+      orElse: () => Client(
+        id: clientId,
+        nom: '',
+        localisation: '',
+        telephone: '',
+      ),
+    );
+
     double totalAchats = historiqueVentes
         .where((v) => v.client.id == clientId)
         .fold(0, (somme, v) => somme + v.totalVente);
-        
+
     double totalPaye = historiqueVersements
         .where((v) => v.client.id == clientId)
         .fold(0, (somme, v) => somme + v.montant);
-        
-    return totalAchats - totalPaye;
+
+    return totalAchats - totalPaye + client.detteInitiale;
   }
 }

@@ -45,6 +45,10 @@ class Vente {
     return lignes.fold(0, (somme, ligne) => somme + ligne.totalLigne);
   }
 
+  double get margeVente {
+    return lignes.fold(0, (somme, ligne) => somme + (ligne.marge * ligne.quantite));
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

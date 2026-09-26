@@ -45,9 +45,8 @@ class _CreditScreenState extends State<CreditScreen> {
                     montant: montant,
                   );
                   
-                  // SAUVEGARDE EN BASE DE DONNÉES
                   await BaseDeDonnees.ajouterPaiement(paiement);
-                  
+                  BaseDeDonnees.reinitialiserDetteTotale();
                   setState(() {});
                   if (context.mounted) Navigator.pop(context);
                 }
@@ -60,12 +59,65 @@ class _CreditScreenState extends State<CreditScreen> {
     );
   }
 
+  void _afficherDialogueModificationDette() {
+    final formKey = GlobalKey<FormState>();
+    final controller = TextEditingController(
+      text: BaseDeDonnees.detteTotale.toStringAsFixed(2),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Modifier la dette'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: controller,
+              decoration: const InputDecoration(labelText: 'Montant de la dette (DA)', border: OutlineInputBorder()),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              validator: (val) => val == null || val.isEmpty ? 'Veuillez entrer un montant' : null,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Annuler', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  final value = double.tryParse(controller.text) ?? 0.0;
+                  BaseDeDonnees.definirDetteTotale(value);
+                  setState(() {});
+                  if (context.mounted) Navigator.pop(context);
+                }
+              },
+              child: const Text('Enregistrer'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double detteActuelle = BaseDeDonnees.detteTotale;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Gestion du Crédit'), backgroundColor: Colors.red[400], foregroundColor: Colors.white),
+      appBar: AppBar(
+        title: const Text('Gestion du Crédit'),
+        backgroundColor: Colors.red[400],
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: _afficherDialogueModificationDette,
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Container(
@@ -76,7 +128,16 @@ class _CreditScreenState extends State<CreditScreen> {
               children: [
                 const Text('Dette Totale Actuelle', style: TextStyle(fontSize: 18, color: Colors.red)),
                 const SizedBox(height: 8),
-                Text('${detteActuelle.toStringAsFixed(2)} DA', style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.red)),
+                InkWell(
+                  onTap: _afficherDialogueModificationDette,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      '${detteActuelle.toStringAsFixed(2)} DA',
+                      style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
